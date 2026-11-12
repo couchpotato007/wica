@@ -1,0 +1,31 @@
+# query | acceptable tools (any of them in the top results counts)
+render markdown | glow, mdcat, frogmouth, mdless
+render markdown cli | glow, mdcat, frogmouth, mdless
+search in files | rg, grep, ag, ack, ugrep
+find files by name | fd, find, locate, plocate
+compress a folder | tar, zip, 7z, 7za
+pretty print json | jq, jless, fx, gron, jello
+disk usage | du, ncdu, dust, duf, gdu, df
+undo last commit | git reset, git revert
+show running processes | ps, top, htop, btop, procs, pgrep
+download a file from url | curl, wget, aria2c, wget2, xh
+convert video format | ffmpeg, handbrakecli
+resize an image | magick, convert, mogrify, vipsthumbnail
+count lines of code | tokei, cloc, scc, loc
+rerun command when files change | entr, watchexec, watchman
+fuzzy finder | fzf, sk, peco, fzy
+send http requests | curl, http, xh, curlie, httpie
+benchmark a command | hyperfine, time, bench
+view csv files | csvlook, xsv, qsv, visidata, csview, tidy-viewer
+which process uses a port | lsof, ss, netstat, fuser
+cat with syntax highlighting | bat, ccat, pygmentize
+show directory tree | tree, eza, broot, lsd
+sync files to remote server | rsync, rclone, unison
+split terminal into panes | tmux, screen, zellij
+merge pdf files | pdfunite, qpdf, pdftk, pdfjam, gs
+replace text in files | sed, sd, rpl, perl, fastmod
+monitor network bandwidth | bandwhich, nethogs, iftop, nload, bmon, vnstat
+list disks and partitions | lsblk, fdisk, parted, blkid, df
+take a screenshot | scrot, grim, maim, flameshot, gnome-screenshot, spectacle
+rename many files | rename, mmv, vidir, perl-rename, f2
+dns lookup | dig, nslookup, host, dog, drill, doggo

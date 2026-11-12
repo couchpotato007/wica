@@ -1,0 +1,131 @@
+# Package managers wica knows about.
+#
+# To add one, append a [[manager]] table. You can do this without recompiling
+# in ~/.config/wica/package-managers.toml; entries there are tried first and
+# replace built-in ones with the same name. `wica managers` shows what's active.
+#
+#   name     Display name.
+#   detect   Executable whose presence on $PATH means this manager is available.
+#   install  Command to install a package. {package} is replaced.
+#   try      Optional: command to try a package without installing it.
+#   lookup   Optional: ways to find which package provides a command, tried in
+#            order until one matches. Each has:
+#              command  argv list (no shell). {command} is replaced by the
+#                       command name, e.g. "rg".
+#              pattern  Regex applied to each output line (stdout + stderr);
+#                       capture group 1 is the package name.
+#            If no lookup finds anything, wica guesses package = command name
+#            and says so.
+#   search   Optional: search packages by name, used by `wica name`. Has:
+#              command  argv list; {query} is replaced by what the user typed.
+#              pattern  Regex applied to the WHOLE output (use (?m) for ^/$
+#                       per line, \n to span lines); group 1 is the package
+#                       name, optional group 2 its description.
+#              timeout  Optional seconds (default 8).
+
+[[manager]]
+name = "nix"
+detect = "nix"
+install = "nix profile install nixpkgs#{package}"
+try = "nix shell nixpkgs#{package}"
+  # nix-index's file database (`nix-index` builds it, or use nix-index-database).
+  [[manager.lookup]]
+  command = ["nix-locate", "--minimal", "--top-level", "--whole-name", "--at-root", "/bin/{command}"]
+  pattern = '^(\S+?)(?:\.(?:out|bin))?$'
+  [manager.search]
+  command = ["nix", "search", "nixpkgs", "{query}"]
+  pattern = '(?m)^\* legacyPackages\.[^.\s]+\.(\S+) \([^)]*\)\n\s*(.*)$'
+  timeout = 60  # the first search evaluates nixpkgs
+
+
+[[manager]]
+name = "pacman"
+detect = "pacman"
+install = "sudo pacman -S {package}"
+  # Needs the files database once: sudo pacman -Fy
+  [[manager.lookup]]
+  command = ["pacman", "-Fq", "/usr/bin/{command}"]
+  pattern = '^(?:\S+/)?(\S+)$'
+  [manager.search]
+  command = ["pacman", "-Ss", "{query}"]
+  pattern = '(?m)^\S+/(\S+) \S+.*\n\s+(.*)$'
+
+
+[[manager]]
+name = "apt"
+detect = "apt-get"
+install = "sudo apt install {package}"
+  # Ubuntu's command-not-found database (present on most Ubuntu installs).
+  [[manager.lookup]]
+  command = ["/usr/lib/command-not-found", "--ignore-installed", "{command}"]
+  pattern = 'apt install (\S+)'
+  # apt-file (sudo apt install apt-file && sudo apt-file update).
+  [[manager.lookup]]
+  command = ["apt-file", "search", "--regexp", "/s?bin/{command}$"]
+  pattern = '^([^:\s]+):'
+  [manager.search]
+  command = ["apt-cache", "search", "--names-only", "{query}"]
+  pattern = '(?m)^(\S+) - (.*)$'
+
+
+[[manager]]
+name = "dnf"
+detect = "dnf"
+install = "sudo dnf install {package}"
+  [[manager.lookup]]
+  command = ["dnf", "provides", "-q", "*/bin/{command}"]
+  pattern = '^(\S+?)-\d\S*\s+:'
+  [manager.search]
+  command = ["dnf", "search", "-q", "{query}"]
+  pattern = '(?m)^\s*(\S+?)\.(?:x86_64|aarch64|noarch|i686|ppc64le|s390x)\s*:?\s+(.*)$'
+  timeout = 30
+
+
+[[manager]]
+name = "zypper"
+detect = "zypper"
+install = "sudo zypper install {package}"
+  [[manager.lookup]]
+  command = ["zypper", "--quiet", "--non-interactive", "search", "--provides", "--match-exact", "/usr/bin/{command}"]
+  pattern = '^[ i+v]*\|\s*([a-z0-9][\w.+-]*)\s*\|'
+  [manager.search]
+  command = ["zypper", "--quiet", "--non-interactive", "search", "{query}"]
+  pattern = '(?m)^[ i+v]*\|\s*([a-z0-9][\w.+-]*)\s*\|\s*(.*?)\s*\|\s*package\s*$'
+
+
+[[manager]]
+name = "apk"
+detect = "apk"
+install = "sudo apk add {package}"
+  [[manager.lookup]]
+  command = ["apk", "search", "-x", "cmd:{command}"]
+  pattern = '^(\S+?)-\d'
+  [manager.search]
+  command = ["apk", "search", "-v", "{query}"]
+  pattern = '(?m)^(\S+?)-\d\S* - (.*)$'
+
+
+[[manager]]
+name = "xbps"
+detect = "xbps-install"
+install = "sudo xbps-install {package}"
+  # From xtools.
+  [[manager.lookup]]
+  command = ["xlocate", "/usr/bin/{command}"]
+  pattern = '^(\S+?)-\d'
+  [manager.search]
+  command = ["xbps-query", "-Rs", "{query}"]
+  pattern = '(?m)^\[.\] (\S+?)-\d\S*\s+(.*)$'
+
+
+[[manager]]
+name = "brew"
+detect = "brew"
+install = "brew install {package}"
+  # Needs: brew tap homebrew/command-not-found
+  [[manager.lookup]]
+  command = ["brew", "which-formula", "{command}"]
+  pattern = '^(\S+)$'
+  [manager.search]
+  command = ["brew", "search", "{query}"]
+  pattern = '(?m)^([a-z0-9][\w@.+-]*)$'

@@ -1,0 +1,34 @@
+[package]
+name = "wica"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.104"
+candle-core = "0.11.1"
+candle-nn = "0.11.1"
+candle-transformers = "0.11.1"
+clap = { version = "4.6.7", features = ["derive"] }
+dirs = "7.0.0"
+flate2 = "1.1.11"
+libc = "0.2.191"
+model2vec-rs = { version = "0.4.0", default-features = false, features = ["fancy-regex", "local-only"] }
+rayon = "1.12.0"
+strsim = "0.11"
+regex = "1.13.1"
+rust-stemmers = "1.2.0"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+terminal_size = "0.4.4"
+tokenizers = { version = "0.21", default-features = false, features = ["fancy-regex"] }
+toml = "1.2.1"
+ureq = "3.5.1"
+zip = { version = "9.5.1", default-features = false, features = ["deflate"] }
+
+# The embedding model (candle, gemm, tokenizers) is unusably slow without
+# optimizations, so optimize dependencies even in debug builds (`cargo run`).
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev]
+opt-level = 1

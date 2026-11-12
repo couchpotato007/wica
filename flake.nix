@@ -1,5 +1,5 @@
 {
-  description = "Eine einfache Nix dev shell für Rust";
+  description = "wica - find the CLI tool you forgot the name of";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
@@ -14,7 +14,20 @@
     system = "x86_64-linux";
     lib = nixpkgs.lib;
     pkgs = nixpkgs.legacyPackages.${system};
+    forAllSystems = lib.genAttrs ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
   in {
+    packages = forAllSystems (system: rec {
+      wica = nixpkgs.legacyPackages.${system}.callPackage ./nix/package.nix {};
+      default = wica;
+    });
+
+    overlays.default = final: _prev: {
+      wica = final.callPackage ./nix/package.nix {};
+    };
+
+    homeManagerModules.default = import ./nix/hm-module.nix self;
+    homeManagerModules.wica = self.homeManagerModules.default;
+
     devShells.${system}.default = pkgs.mkShell {
       name = "rust-dev-shell";
 

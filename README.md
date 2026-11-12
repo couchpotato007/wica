@@ -5,6 +5,7 @@ Whats it called again?
 Find the tool you installed a year ago with a simple query on what the tool
 does.
 
+![wica demo](asset/demo.gif)
 
 ## Why
 
